@@ -2,19 +2,28 @@ package Calendar.App;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.InputStream;
+import java.util.Calendar;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 
 public class MainGui extends JFrame{
-
+	
+	private static final long serialVersionUID = 1L;
 	private MainGui(){
 		//this.setSize(510,335);
 		Toolkit tk = Toolkit.getDefaultToolkit();
@@ -27,7 +36,7 @@ public class MainGui extends JFrame{
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Container contentpane = getContentPane();
 		contentpane.setLayout(new BorderLayout());
-		Base mainbase = new Base();
+		Base mainbase = new Base(this);
 		contentpane.add(mainbase);
 		pack();
 		this.setVisible(true);
@@ -38,65 +47,51 @@ public class MainGui extends JFrame{
 	}
 }
 
-class Base extends JPanel{
-	Base(){
-		setBackground(Color.GREEN);
-		setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.insets = new Insets(2,2,2,2);
-		Head mainhead = new Head();
-		WeekDay  wd = new WeekDay();
-		DayDate dd = new DayDate();
-		add(mainhead,gbc);
-		gbc.gridy++;
-		add(wd,gbc);
-		gbc.gridy++;
-		add(dd,gbc);
-		
-	}
+class Base extends JPanel implements ActionListener, MouseListener, ItemListener{
 	
-}
-
-class Head extends JPanel{
+	private static final long serialVersionUID = 1L;
+	private JPanel Head,weekday;
+	private JLabel su,mo,tu,we,th,fr,sa;
 	private JButton alarm;
 	private JComboBox<String> box1;
 	private JComboBox<Integer> box2;
-	String[] month = {"January", "February", "March", "April", "May", "June", "July", "August", "November", "December"};
-	Integer[] years = {1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021};
-	Head(){
-		
-		setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = 1;
-		gbc.gridy = 0;
-		gbc.insets = new Insets(10,2,10,15);
-		gbc.ipadx = 50;
-		alarm = new JButton("Alarm");
-		box1 = new JComboBox(month);
-		box2 = new JComboBox(years);
-		add(alarm,gbc);
-		gbc.gridx++;
-		add(box1,gbc);
-		gbc.gridx++;
-		add(box2,gbc);
-		setBackground(Color.GREEN);
-	}
-}
-
-class WeekDay extends JPanel{
-	private JLabel su,mo,tu,we,th,fr,sa;
+	int pdate = 1,fdate,date;
 	Font font = null;
-	WeekDay(){
-		
+	JFrame mjjf;
+	private JLabel[] labels;
+	String[] month = {"January", "February", "March", "April", "May", "June", "July", "August", "September","October","November", "December"};
+	Integer[] years = {1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021};
+	int[] monthend = {0,31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+	Base(JFrame mainjf){
+		mjjf = mainjf;
+		//head
+		//setBackground(Color.GREEN);
+		Calendar now = Calendar.getInstance();
+		int year = now.get(Calendar.YEAR);
+		int monthc = now.get(Calendar.MONTH)+1;
+		date = now.get(Calendar.DATE);
+		int code = CalendarCalculation(year, monthc);
+		if(checkLeapYear(year)) {
+			monthend[2] = 29;
+		}
+		else {
+			monthend[2] = 28;
+		}
+	
 		setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		gbc.insets = new Insets(5,10,5,10);
-		gbc.ipadx = 10;
+		gbc.insets = new Insets(10,10,10,15);
 		
+		Head = new JPanel();
+		Head.setBackground(new Color(22,96,26));
+		alarm = new JButton("Add Event");
+		box1 = new JComboBox<String>(month);
+		box1.setSelectedIndex(monthc-1);
+		box2 = new JComboBox<Integer>(years);
+		box2.setSelectedIndex(year-1990);
+		//weekday
 		try {
 			
 			InputStream is = this.getClass().getResourceAsStream("font/Montserrat-Regular.ttf");
@@ -108,206 +103,226 @@ class WeekDay extends JPanel{
 			System.out.println("font problem: "+e);
 		}
 		
-		su = new JLabel("SUN");
+		weekday = new JPanel();
+		weekday.setBackground(new Color(22,96,26));
+		su = new JLabel("SUN", SwingConstants.CENTER);
 		su.setFont(font);
-		mo = new JLabel("MON");
+		su.setForeground(Color.WHITE);
+		mo = new JLabel("MON", SwingConstants.CENTER);
 		mo.setFont(font);
-		tu = new JLabel("TUE");
+		mo.setForeground(Color.WHITE);
+		tu = new JLabel("TUE", SwingConstants.CENTER);
 		tu.setFont(font);
-		we = new JLabel("WED");
+		tu.setForeground(Color.WHITE);
+		we = new JLabel("WED", SwingConstants.CENTER);
 		we.setFont(font);
-		th = new JLabel("THU");
+		we.setForeground(Color.WHITE);
+		th = new JLabel("THU", SwingConstants.CENTER);
 		th.setFont(font);
-		fr = new JLabel("FRI");
+		th.setForeground(Color.WHITE);
+		fr = new JLabel("FRI", SwingConstants.CENTER);
 		fr.setFont(font);
-		sa = new JLabel("SAT");
+		fr.setForeground(Color.WHITE);
+		sa = new JLabel("SAT", SwingConstants.CENTER);
 		sa.setFont(font);
+		sa.setForeground(Color.WHITE);
+			
 		
-		add(su,gbc);
-		gbc.gridx++;
-		add(mo,gbc);
-		gbc.gridx++;
-		add(tu,gbc);
-		gbc.gridx++;
-		add(we,gbc);
-		gbc.gridx++;
-		add(th,gbc);
-		gbc.gridx++;
-		add(fr,gbc);
-		gbc.gridx++;
-		add(sa,gbc);
-		setBackground(Color.GREEN);
+		//head
+		Head.setLayout(new GridBagLayout());
+		GridBagConstraints gbc1 = new GridBagConstraints();
+		gbc1.gridx = 1;
+		gbc1.gridy = 0;
+		gbc1.insets = new Insets(10,2,10,15);
+		gbc1.ipadx = 50;
+		Head.add(alarm,gbc1);
+		gbc1.gridx++;
+		Head.add(box1,gbc1);
+		gbc1.gridx++;
+		Head.add(box2,gbc1);
+		
+		//week
+		weekday.setLayout(new GridBagLayout());
+		GridBagConstraints gbc2 = new GridBagConstraints();
+		gbc2.gridx = 0;
+		gbc2.gridy = 1;
+		gbc2.insets = new Insets(5,5,5,5);
+		gbc2.ipadx = 15;
+		weekday.add(su,gbc2);
+		gbc2.gridx++;
+		weekday.add(mo,gbc2);
+		gbc2.gridx++;
+		weekday.add(tu,gbc2);
+		gbc2.gridx++;
+		weekday.add(we,gbc2);
+		gbc2.gridx++;
+		weekday.add(th,gbc2);
+		gbc2.gridx++;
+		weekday.add(fr,gbc2);
+		gbc2.gridx++;
+		weekday.add(sa,gbc2);
+		
+		//day
+		gbc2.gridx = 0;
+		gbc2.gridy++;
+		
+		// add label to panel
+		showLabel(monthc, code);
+		
+		add(Head,gbc);
+		gbc.gridy++;
+		add(weekday,gbc);
+		setBackground(new Color(22,96,26));
+		alarm.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		alarm.addActionListener(this);
+		box1.addItemListener(this);
+		box2.addItemListener(this);
 	}
+	
+	
+	private int CalendarCalculation(int year, int month) {
+		int[] monthcode = {0, 3, 3, 6, 1, 4, 6, 2, 5, 0, 3, 5};
+		
+		int y2 = year%100;
+		int c1 = y2/4;
+		int c2 = (year >= 2000)? 6 : 0;
+		int daycode = (1 + y2 + c1 + c2 + monthcode[month-1])%7;
+		return daycode;
+	}
+	
+	private boolean checkLeapYear(int year) {
+		
+		  if((year % 400 == 0) || ((year % 4 == 0) && (year % 100 != 0)))
+			  return true;
+		  return false;
+	}
+	
+	private JLabel[] creator(int monthc, int code) {
+		
+		labels = new JLabel[42];
+		if(monthc == 1)
+			fdate = monthend[12] - (code-1);
+		else
+			fdate = monthend[monthc-1] - (code-1);
+		
+		for(int i = 0; i < code; i++) {
+			String str = Integer.toString(fdate);
+			labels[i] = new JLabel(str, SwingConstants.CENTER);
+			labels[i].setFont(font);
+			labels[i].setEnabled(false);
+			fdate++;
+		}
+		
+		for(int j = code; j <= monthend[monthc]+code; j++) {
+			String str = Integer.toString(pdate);
+			labels[j] = new JLabel(str, SwingConstants.CENTER);
+			labels[j].setFont(font);
+			labels[j].setForeground(Color.WHITE);
+			if(j == date+code-1) {
+				Border border = BorderFactory.createLineBorder(Color.BLACK, 2);
+				labels[j].setBorder(border);
+			}
+			pdate++;
+		}
+		pdate = 1;
+		for(int j = monthend[monthc]+code; j < 42; j++) {
+			String str = Integer.toString(pdate);
+			labels[j] = new JLabel(str, SwingConstants.CENTER);
+			labels[j].setFont(font);
+			labels[j].setEnabled(false);
+			pdate++;
+		}
+		
+		return labels;
+	}
+	
+	private void showLabel(int monthc, int code) {
+		labels = creator(monthc, code);
+		
+		GridBagConstraints gbc2 = new GridBagConstraints();
+		gbc2.gridx = 0;
+		gbc2.gridy = 2;
+		gbc2.insets = new Insets(5,5,5,5);
+		gbc2.ipadx = 15;
+		
+		for(int k = 0; k < labels.length; k++) {
+			weekday.add(labels[k], gbc2);
+			if((k+1)%7 == 0) {
+				gbc2.gridx = 0;
+				gbc2.gridy++;
+			}
+			else
+				gbc2.gridx++;
+		}
+	}
+	
+	private void showChange(int monthc, int code) {
+		if(monthc == 1)
+			fdate = monthend[12] - (code-1);
+		else
+			fdate = monthend[monthc-1] - (code-1);
+		
+		for(int i = 0; i < code; i++) {
+			String str = Integer.toString(fdate);
+			labels[i].setText(str);
+			labels[i].setFont(font);
+			labels[i].setEnabled(false);
+			fdate++;
+		}
+	
+		pdate = 1;
+		for(int j = code; j <= monthend[monthc]+code; j++) {
+			String str = Integer.toString(pdate);
+			labels[j].setText(str);
+			labels[j].setFont(font);
+			labels[j].setForeground(Color.WHITE);
+			if(labels[j].isVisible()) {
+				labels[j].setEnabled(true);
+			}
+			pdate++;
+		}
+		pdate = 1;
+		for(int j = monthend[monthc]+code; j < 42; j++) {
+			String str = Integer.toString(pdate);
+			labels[j].setText(str);
+			labels[j].setFont(font);
+			labels[j].setEnabled(false);
+			pdate++;
+		}
+	}
+	
+	//Action event
+		public void actionPerformed(ActionEvent ae) {
+			if(ae.getSource()==alarm) {
+				try {
+					new Event();
+					mjjf.dispose();
+				}
+				catch(Exception e) {}
+			}
+		}
+		public void mouseEntered(MouseEvent me)
+		{
+			//add effect when cursor enter on component
+		}
+		public void mouseExited(MouseEvent me)
+		{
+			//add effect when cursor enter on component
+		}
+		public void mouseReleased(MouseEvent me){}
+		public void mousePressed(MouseEvent me){}
+		public void mouseClicked(MouseEvent me){}
+
+		
+//	 	Item Listener for month and year
+
+		public void itemStateChanged(ItemEvent ie) {
+			int monthi = box1.getSelectedIndex();
+			int yeari = box2.getSelectedIndex();
+			int code = CalendarCalculation(yeari+1990, monthi+1);
+			showChange(monthi+1, code);
+		}
+		
 }
 
-class DayDate extends JPanel{
-	private JLabel l1,l2,l3,l4,l5,l6,l7,l8,l9,l10,l11,l12,l13,l14,l15,l16,l17,l18,l19,l20,l21,l22,l23,l24,l25,l26,l27,l28,l29,l30,l31,l32,l33,l34,l35;
-	Font font = null;
-	DayDate(){
-		
-		setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.insets = new Insets(3,18,18,18);
-		gbc.ipadx = 10;
-		
-		
-		try {
-			InputStream is = this.getClass().getResourceAsStream("font/Montserrat-Regular.ttf");
-			font = Font.createFont(Font.TRUETYPE_FONT,is).deriveFont(Font.PLAIN,(20));
-		
-		}
-		catch(Exception e)
-		{
-			System.out.println("font problem: "+e);
-		}
-		
-		l1 = new JLabel("1");
-		l1.setFont(font);
-		l2 = new JLabel("2");
-		l2.setFont(font);
-		l3 = new JLabel("3");
-		l3.setFont(font);
-		l4 = new JLabel("4");
-		l4.setFont(font);
-		l5 = new JLabel("5");
-		l5.setFont(font);
-		l6 = new JLabel("6");
-		l6.setFont(font);
-		l7 = new JLabel("7");
-		l7.setFont(font);
-		l8 = new JLabel("8");
-		l8.setFont(font);
-		l9 = new JLabel("9");
-		l9.setFont(font);
-		l10 = new JLabel("10");
-		l10.setFont(font);
-		l11 = new JLabel("11");
-		l11.setFont(font);
-		l12 = new JLabel("12");
-		l12.setFont(font);
-		l13 = new JLabel("13");
-		l13.setFont(font);
-		l14 = new JLabel("14");
-		l14.setFont(font);
-		l15 = new JLabel("15");
-		l15.setFont(font);
-		l16 = new JLabel("16");
-		l16.setFont(font);
-		l17 = new JLabel("17");
-		l17.setFont(font);
-		l18 = new JLabel("18");
-		l18.setFont(font);
-		l19 = new JLabel("19");
-		l19.setFont(font);
-		l20 = new JLabel("20");
-		l20.setFont(font);
-		l21 = new JLabel("21");
-		l21.setFont(font);
-		l22 = new JLabel("22");
-		l22.setFont(font);
-		l23 = new JLabel("23");
-		l23.setFont(font);
-		l24 = new JLabel("24");
-		l24.setFont(font);
-		l25 = new JLabel("25");
-		l25.setFont(font);
-		l26 = new JLabel("26");
-		l26.setFont(font);
-		l27 = new JLabel("27");
-		l27.setFont(font);
-		l28 = new JLabel("28");
-		l28.setFont(font);
-		l29 = new JLabel("29");
-		l29.setFont(font);
-		l30 = new JLabel("30");
-		l30.setFont(font);
-		l31 = new JLabel("31");
-		l31.setFont(font);
-		l32 = new JLabel("32");
-		l32.setFont(font);
-		l33 = new JLabel("33");
-		l33.setFont(font);
-		l34 = new JLabel("34");
-		l34.setFont(font);
-		l35 = new JLabel("35");
-		l35.setFont(font);
-		
-		add(l1,gbc);
-		gbc.gridx++;
-		add(l2,gbc);
-		gbc.gridx++;
-		add(l3,gbc);
-		gbc.gridx++;
-		add(l4,gbc);
-		gbc.gridx++;
-		add(l5,gbc);
-		gbc.gridx++;
-		add(l6,gbc);
-		gbc.gridx++;
-		add(l7,gbc);
-		gbc.gridx = 0;
-		gbc.gridy++;
-		add(l8,gbc);
-		gbc.gridx++;
-		add(l9,gbc);
-		gbc.gridx++;
-		add(l10,gbc);
-		gbc.gridx++;
-		add(l11,gbc);
-		gbc.gridx++;
-		add(l12,gbc);
-		gbc.gridx++;
-		add(l13,gbc);
-		gbc.gridx++;
-		add(l14,gbc);
-		gbc.gridx = 0;
-		gbc.gridy++;
-		add(l15,gbc);
-		gbc.gridx++;
-		add(l16,gbc);
-		gbc.gridx++;
-		add(l17,gbc);
-		gbc.gridx++;
-		add(l18,gbc);
-		gbc.gridx++;
-		add(l19,gbc);
-		gbc.gridx++;
-		add(l20,gbc);
-		gbc.gridx++;
-		add(l21,gbc);
-		gbc.gridx = 0;
-		gbc.gridy++;
-		add(l22,gbc);
-		gbc.gridx++;
-		add(l23,gbc);
-		gbc.gridx++;
-		add(l24,gbc);
-		gbc.gridx++;
-		add(l25,gbc);
-		gbc.gridx++;
-		add(l26,gbc);
-		gbc.gridx++;
-		add(l27,gbc);
-		gbc.gridx++;
-		add(l28,gbc);
-		gbc.gridx = 0;
-		gbc.gridy++;
-		add(l29,gbc);
-		gbc.gridx++;
-		add(l30,gbc);
-		gbc.gridx++;
-		add(l31,gbc);
-		gbc.gridx++;
-		add(l32,gbc);
-		gbc.gridx++;
-		add(l33,gbc);
-		gbc.gridx++;
-		add(l34,gbc);
-		gbc.gridx++;
-		add(l35,gbc);
-		setBackground(Color.GREEN);
-	}
-}
 
