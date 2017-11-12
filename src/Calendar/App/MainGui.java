@@ -13,8 +13,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.InputStream;
 import java.util.Calendar;
 
@@ -47,7 +45,7 @@ public class MainGui extends JFrame{
 	}
 }
 
-class Base extends JPanel implements ActionListener, MouseListener, ItemListener{
+class Base extends JPanel implements ActionListener, ItemListener{
 	
 	private static final long serialVersionUID = 1L;
 	private JPanel Head,weekday;
@@ -56,8 +54,8 @@ class Base extends JPanel implements ActionListener, MouseListener, ItemListener
 	private JComboBox<String> box1;
 	private JComboBox<Integer> box2;
 	int pdate = 1,fdate,date;
-	Font font = null;
-	JFrame mjjf;
+	private Font font = null;
+	private JFrame mjjf;
 	private JLabel[] labels;
 	String[] month = {"January", "February", "March", "April", "May", "June", "July", "August", "September","October","November", "December"};
 	Integer[] years = {1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021};
@@ -87,6 +85,8 @@ class Base extends JPanel implements ActionListener, MouseListener, ItemListener
 		Head = new JPanel();
 		Head.setBackground(new Color(22,96,26));
 		alarm = new JButton("Add Event");
+		alarm.setBorderPainted(false);
+		alarm.setOpaque(false);
 		box1 = new JComboBox<String>(month);
 		box1.setSelectedIndex(monthc-1);
 		box2 = new JComboBox<Integer>(years);
@@ -301,18 +301,6 @@ class Base extends JPanel implements ActionListener, MouseListener, ItemListener
 				catch(Exception e) {}
 			}
 		}
-		public void mouseEntered(MouseEvent me)
-		{
-			//add effect when cursor enter on component
-		}
-		public void mouseExited(MouseEvent me)
-		{
-			//add effect when cursor enter on component
-		}
-		public void mouseReleased(MouseEvent me){}
-		public void mousePressed(MouseEvent me){}
-		public void mouseClicked(MouseEvent me){}
-
 		
 //	 	Item Listener for month and year
 
