@@ -37,7 +37,7 @@ public class Event extends JFrame implements ActionListener{
 	private JScrollPane scroll;
 	private JFormattedTextField txtDate;
 	private Font font = null;
-	JTextField namefield,eventfield,efield;
+	private JTextField namefield,eventfield,efield;
 	Event() {
 		
 		Toolkit tk = Toolkit.getDefaultToolkit();
@@ -172,7 +172,11 @@ public class Event extends JFrame implements ActionListener{
 				}
 			}
 		});
+		clear.addActionListener(this);
 		save.addActionListener(this);
+		send.addActionListener(this);
+		delete.addActionListener(this);
+		update.addActionListener(this);
 		pack();
 //		setSize(510,335);
 		setVisible(true);
@@ -211,6 +215,30 @@ public class Event extends JFrame implements ActionListener{
 				SaveDatabase sd = new SaveDatabase();
 				sd.savedata(named,eventname,txtdate,emailid,message);
 			}
+		}
+		
+		if(ae.getSource() == clear) {
+			namefield.setText("");
+			eventfield.setText("");
+			txtDate.setText("");
+			efield.setText("");
+			msgbox.setText("");
+			namefield.requestFocus();
+		}
+		
+		if(ae.getSource() == send) {
+			SendMail sm = new SendMail();
+			sm.sendMail();
+		}
+		
+		if(ae.getSource() == delete) {
+			DeleteData dd = new DeleteData();
+			dd.deleteData();
+		}
+		
+		if(ae.getSource() == update) {
+			UpdateData ud = new UpdateData();
+			ud.updateData();
 		}
 	}
 }
