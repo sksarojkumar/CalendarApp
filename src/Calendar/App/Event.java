@@ -32,7 +32,7 @@ public class Event extends JFrame implements ActionListener{
 	private static final long serialVersionUID = 1L;
 	private JPanel content, button;
 	private JLabel name,ename,date,email,msg;
-	private JButton delete,send,update,clear,save;
+	private JButton view,send,clear,save;
 	private JTextArea msgbox;
 	private JScrollPane scroll;
 	private JFormattedTextField txtDate;
@@ -96,10 +96,10 @@ public class Event extends JFrame implements ActionListener{
 		
 		button = new JPanel();
 		button.setBackground(new Color(22,96,26));
-		delete = new JButton("Delete");
+		view = new JButton("View Saved Lists");
 		send = new JButton("Send");
+		send.setEnabled(false);
 		save = new JButton("Save");
-		update = new JButton("Update");
 		clear = new JButton("Clear");
 		
 		content.setLayout(new GridBagLayout());
@@ -151,16 +151,13 @@ public class Event extends JFrame implements ActionListener{
 		button.add(save, gbc2);
 		gbc2.gridx = 4;
 		gbc2.gridy++;
-		button.add(delete,gbc2);
-		gbc2.gridx++;
-		button.add(update,gbc2);
+		button.add(view,gbc2);
 		
 		contentpane.add(content, gbc);
 		gbc.gridy++;
 		contentpane.add(button, gbc);
-		delete.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		view.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		send.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		update.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		clear.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		txtDate.addKeyListener(new KeyAdapter() {
 			public void keyTyped(KeyEvent e) {
@@ -175,8 +172,7 @@ public class Event extends JFrame implements ActionListener{
 		clear.addActionListener(this);
 		save.addActionListener(this);
 		send.addActionListener(this);
-		delete.addActionListener(this);
-		update.addActionListener(this);
+		view.addActionListener(this);
 		pack();
 //		setSize(510,335);
 		setVisible(true);
@@ -185,6 +181,7 @@ public class Event extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent ae) {
 		// TODO Auto-generated method stub
 		if(ae.getSource() == save) {
+			
 			String named = namefield.getText();
 			String eventname = eventfield.getText();
 			String txtdate = txtDate.getText();
@@ -212,8 +209,21 @@ public class Event extends JFrame implements ActionListener{
 				JOptionPane.showMessageDialog(null,"The Message fiels is Empty");
 			}
 			else {
-				SaveDatabase sd = new SaveDatabase();
-				sd.savedata(named,eventname,txtdate,emailid,message);
+				send.setEnabled(true);
+				EventList el = new EventList();
+				el.setName(named);
+				el.setEventName(eventname);
+				el.setEventDate(txtdate);
+				el.setEmail(emailid);
+				el.setMessage(message);
+				
+				int status = DatabaseEvents.save(el);
+				if(status > 0) {
+					JOptionPane.showMessageDialog(null, "Data Saved Successfully");
+				}
+				else {
+					JOptionPane.showMessageDialog(null, "Sorry! unable to save record");
+				}
 			}
 		}
 		
@@ -231,14 +241,9 @@ public class Event extends JFrame implements ActionListener{
 			sm.sendMail();
 		}
 		
-		if(ae.getSource() == delete) {
-			DeleteData dd = new DeleteData();
-			dd.deleteData();
+		if(ae.getSource() == view) {
+			new ViewData();
 		}
 		
-		if(ae.getSource() == update) {
-			UpdateData ud = new UpdateData();
-			ud.updateData();
-		}
 	}
 }
