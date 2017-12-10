@@ -22,7 +22,7 @@ import javax.swing.border.Border;
 public class MainGui extends JFrame{
 	
 	private static final long serialVersionUID = 1L;
-	private MainGui(){
+	public MainGui(){
 		//this.setSize(510,335);
 		Toolkit tk = Toolkit.getDefaultToolkit();
 		Dimension d = tk.getScreenSize();
@@ -39,10 +39,10 @@ public class MainGui extends JFrame{
 		pack();
 		this.setVisible(true);
 	}
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		new MainGui();
-	}
+//	public static void main(String[] args) {
+//		// TODO Auto-generated method stub
+//		new MainGui();
+//	}
 }
 
 class Base extends JPanel implements ActionListener, ItemListener{

@@ -38,17 +38,17 @@ public class SendMail {
 			ps = conn.prepareStatement("select EVENTNAME, EMAIL, MSG from EVENTLIST where EVENTDATE=?");
 			ps.setString(1,today);
 			ResultSet rs = ps.executeQuery();
-			if(rs.next()) {
+			while(rs.next()) {
 				String sub = rs.getString(1);
 				String to = rs.getString(2);
 				String msg = rs.getString(3);
-				ps.close();
-				rs.close();
-				conn.close();
 
 				SendEmail(to,"Wish box", msg,sub);
 				
 			}
+			ps.close();
+			rs.close();
+			conn.close();
 			
 		}
 		catch(Exception e) {
@@ -82,7 +82,7 @@ public class SendMail {
 			  msg.addRecipient(Message.RecipientType.TO,
 			  new InternetAddress(receiverEmailID));
 			  Transport.send(msg);
-			  JOptionPane.showMessageDialog(null, "Msg sent Successfully.");
+			  JOptionPane.showMessageDialog(null, "Msg sent Successfully.\n To: "+receiverEmailID);
 		  } 
 		  catch (Exception mex){
 			  mex.printStackTrace();
