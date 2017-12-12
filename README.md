@@ -1,6 +1,6 @@
 # CalenderApp
 A GUI Application that show Calender with some features.
-In this app we can add *Events* `(like Birthday, Anniversary)` and on that date you *saved Message* sent to that person automatically or you can also send by yourself.
+In this app we can add *Events* `(like Birthday, Anniversary)` and on that date your *saved Message* sent to that person automatically or you can also send by yourself.
 
 # Prerequisite   
 You need to install following software:
