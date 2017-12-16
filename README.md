@@ -29,3 +29,4 @@ and create a *One table* named:
 # Build With:
 * Swing Framework
 * Thread
+* JavaMail API
